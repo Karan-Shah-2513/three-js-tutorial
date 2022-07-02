@@ -1,8 +1,7 @@
-import "./style.css";
-
 import * as THREE from "three";
 
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
+// import { Mesh } from "three";
 
 const scene = new THREE.Scene();
 
@@ -30,8 +29,8 @@ const material = new THREE.MeshStandardMaterial({
   color: 0xff0000,
 });
 
-const ring = new THREE.Mesh(geometry, material);
-scene.add(ring);
+const sphere = new THREE.Mesh(geometry, material);
+scene.add(sphere);
 
 const pointLight = new THREE.PointLight(0xffffff);
 pointLight.position.set(200, 5, 100);
@@ -53,7 +52,7 @@ function addStar() {
 
   const [x, y, z] = Array(3)
     .fill()
-    .map(() => THREE.MathUtils.randFloatSpread(100));
+    .map(() => THREE.MathUtils.randFloatSpread(200));
 
   star.position.set(x, y, z);
   scene.add(star);
@@ -63,10 +62,10 @@ function addStar() {
 const stars = new Array(200);
 stars.fill().forEach(addStar);
 
-const spaceTexture = new THREE.TextureLoader().load(
+const gogouTexture = new THREE.TextureLoader().load(
   "Gojo-Satoru-Jujutsu-Kaisen.jpg"
 );
-scene.background = spaceTexture;
+scene.background = gogouTexture;
 
 const wallpapertexture = new THREE.TextureLoader().load("Good-wallpaper.jpg");
 const wallpaper = new THREE.Mesh(
@@ -75,19 +74,75 @@ const wallpaper = new THREE.Mesh(
 );
 
 scene.add(wallpaper);
+const jupiterTexture = new THREE.TextureLoader().load("jupiter-from-nasa.jpg");
+const jupiterNormalTexture = new THREE.TextureLoader().load(
+  "Moon-For-Jupiter-Texture.jpg"
+);
+
+const jupiter = new THREE.Mesh(
+  new THREE.SphereGeometry(2, 24, 24),
+  new THREE.MeshStandardMaterial({
+    map: jupiterTexture,
+    normalMap: jupiterNormalTexture,
+  })
+);
+
+scene.add(jupiter);
+jupiter.position.y = 10;
+jupiter.position.x = -15;
+// jupiter.position.z = 10;
+
+jupiter.rotation.z = 0.5;
+
+const torus = new THREE.Mesh(
+  new THREE.TorusGeometry(8, 3, 10, 27, 6.283185),
+  new THREE.MeshStandardMaterial({
+    color: 0x0000ff,
+  })
+);
+scene.add(torus);
 
 function animate() {
   requestAnimationFrame(animate);
-  ring.rotation.x += 0.01;
-  ring.rotation.y += 0.005;
-  ring.rotation.z += 0.01;
+  sphere.rotation.x += 0.01;
+  sphere.rotation.y += 0.005;
+  sphere.rotation.z += 0.01;
   wallpaper.rotation.x += 0.01;
   wallpaper.rotation.y += 0.05;
   wallpaper.rotation.z += 0.01;
+  torus.rotation.x += 0.01;
+  torus.rotation.y += 0.005;
+  torus.rotation.z += 0.01;
+  jupiter.rotateOnAxis(new THREE.Vector3(0, 1, 0), 0.01);
+
   // stars[Math.floor(Math.random() * 200)].setX(Math.random * 100);
+  // stars.forEach((star) => {
+  //   star.x += Math.random();
+  // });
+  // moveCamera();
   controls.update();
 
   renderer.render(scene, camera);
+
+  // setInterval(animate, 500);
 }
-console.log(stars);
+// console.log(stars[0]);
+function moveCamera() {
+  const currScrollPos = document.body.getBoundingClientRect().top;
+  // jupiter.rotation.x += 0.01;
+  // jupiter.rotation.y += 0.05;
+  // jupiter.rotation.z += 0.01;
+
+  torus.rotation.x += 0.01;
+
+  wallpaper.rotation.y += 0.01;
+  wallpaper.rotation.z += 0.01;
+
+  camera.position.x = currScrollPos * -0.0001;
+  camera.rotation.y = currScrollPos * -0.0001;
+  camera.position.z = currScrollPos * -0.1;
+}
+
+document.body.onscroll = moveCamera;
+moveCamera();
 animate();
